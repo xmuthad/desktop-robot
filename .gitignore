@@ -22,3 +22,12 @@ Thumbs.db
 # 临时文件
 *.tmp
 *.temp
+
+# 敏感信息
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+credentials.json
+service-account.json

@@ -52,6 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
     clearLogBtn.addEventListener('click', clearLog);
   }
 
+  // 绑定切换日志面板按钮
+  const toggleLogBtn = document.getElementById('toggle-log-btn');
+  const logPanel = document.getElementById('log-panel');
+  if (toggleLogBtn && logPanel) {
+    toggleLogBtn.addEventListener('click', () => {
+      logPanel.classList.toggle('show');
+    });
+  }
+
   // 初始化工作流和模板模块
   if (typeof workflowModule !== 'undefined') {
     workflowModule.init();

@@ -771,6 +771,11 @@ body {
   border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
+  display: none;
+}
+
+.log-panel.show {
+  display: flex;
 }
 
 .log-header {
@@ -821,6 +826,36 @@ body {
 .log-entry .log-time {
   color: var(--text-secondary);
   margin-right: 8px;
+}
+
+/* 日志切换按钮 */
+.toggle-log-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  border: none;
+  color: var(--bg-primary);
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-log-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.toggle-log-btn:active {
+  transform: scale(0.95);
 }
 
 /* 模态框 */
@@ -1921,6 +1956,10 @@ button:disabled:hover {
   justify-content: center;
   height: 400px;
   text-align: center;
+}
+
+.workflow-empty-state.hidden {
+  display: none;
 }
 
 .empty-state-icon {

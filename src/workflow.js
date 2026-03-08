@@ -87,7 +87,7 @@ const workflowModule = {
     if (cancelAddStep) {
       cancelAddStep.addEventListener('click', () => this.closeAddStepPanel());
     }
-    const confirmAddStepBtn = document.getElementById('confirm-add-step');
+    const confirmAddStepBtn = document.getElementById('confirm-add-step-btn');
     if (confirmAddStepBtn) {
       confirmAddStepBtn.addEventListener('click', confirmAddStep);
     }
@@ -99,6 +99,17 @@ const workflowModule = {
       this.workflows = JSON.parse(saved);
     }
     this.renderList();
+    // 如果有工作流，自动选择第一个
+    if (this.workflows.length > 0) {
+      this.currentWorkflow = this.workflows[0];
+      this.renderEditor();
+      this.updateEmptyState();
+      // 高亮第一个列表项
+      const firstItem = document.querySelector('#workflow-list li');
+      if (firstItem) {
+        firstItem.classList.add('active');
+      }
+    }
   },
 
   saveToStorage() {
@@ -315,6 +326,7 @@ const workflowModule = {
             ${step.delay > 0 ? `<div class="step-delay">⏱ 等待 ${step.delay}s</div>` : ''}
           </div>
           <div class="step-actions">
+            <button class="btn-icon btn-edit" title="编辑">✏️</button>
             <button class="btn-icon btn-move-up" title="上移">↑</button>
             <button class="btn-icon btn-move-down" title="下移">↓</button>
             <button class="btn-icon btn-delete" title="删除">🗑️</button>
@@ -328,15 +340,22 @@ const workflowModule = {
     console.log('[workflow] 找到步骤项数量:', stepItems.length);
     stepItems.forEach((item, i) => {
       const index = parseInt(item.dataset.index);
+      const editBtn = item.querySelector('.btn-edit');
       const upBtn = item.querySelector('.btn-move-up');
       const downBtn = item.querySelector('.btn-move-down');
       const delBtn = item.querySelector('.btn-delete');
       console.log(`[workflow] 步骤 ${i}: index=${index}, 按钮存在性:`, {
         up: !!upBtn,
         down: !!downBtn,
-        del: !!delBtn
+        del: !!delBtn,
+        edit: !!editBtn
       });
 
+      editBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        console.log('[workflow] 编辑按钮点击:', index);
+        workflowModule.editStep(index);
+      });
       upBtn?.addEventListener('click', (e) => {
         e.stopPropagation();
         console.log('[workflow] 上移按钮点击:', index);
@@ -367,6 +386,94 @@ const workflowModule = {
     this.updateStepCount();
     this.closeAddStepPanel();
     log(`添加步骤：${step.desc}`, 'info');
+  },
+
+  editStep(index) {
+    if (!this.currentWorkflow || !this.currentWorkflow.steps[index]) return;
+
+    const step = this.currentWorkflow.steps[index];
+    this.editingStepIndex = index;
+
+    // 打开侧滑面板
+    const panel = document.getElementById('add-step-panel');
+    if (panel) {
+      panel.classList.remove('hidden');
+    }
+
+    // 设置步骤类型
+    const typeSelect = document.getElementById('step-type');
+    if (typeSelect) {
+      typeSelect.value = step.type;
+    }
+
+    // 渲染参数表单
+    renderStepParams();
+
+    // 更新确认按钮文本
+    const confirmBtn = document.getElementById('confirm-add-step-btn');
+    if (confirmBtn) {
+      confirmBtn.textContent = '保存步骤';
+    }
+
+    // 填充现有参数值
+    setTimeout(() => {
+      switch (step.type) {
+        case 'open-app':
+          document.getElementById('step-param-app').value = step.params.app || '';
+          break;
+        case 'open-url':
+          document.getElementById('step-param-url').value = step.params.url || '';
+          break;
+        case 'type-text':
+          document.getElementById('step-param-text').value = step.params.text || '';
+          break;
+        case 'send-hotkey':
+          if (step.params.modifiers) {
+            document.getElementById('hotkey-cmd').checked = step.params.modifiers.includes('command');
+            document.getElementById('hotkey-ctrl').checked = step.params.modifiers.includes('control');
+            document.getElementById('hotkey-alt').checked = step.params.modifiers.includes('alt');
+            document.getElementById('hotkey-shift').checked = step.params.modifiers.includes('shift');
+          }
+          document.getElementById('hotkey-key').value = step.params.key || '';
+          break;
+        case 'mouse-click':
+          document.getElementById('mouse-click-type').value = step.params.type || 'left';
+          break;
+        case 'mouse-move':
+          document.getElementById('mouse-move-x').value = step.params.x || 0;
+          document.getElementById('mouse-move-y').value = step.params.y || 0;
+          break;
+        case 'wait':
+          document.getElementById('step-param-wait').value = step.params.seconds || 1;
+          break;
+        case 'run-script':
+          document.getElementById('step-param-script').value = step.params.scriptName || '';
+          break;
+        case 'custom':
+          document.getElementById('step-param-custom').value = step.params.command || '';
+          break;
+      }
+      document.getElementById('step-delay').value = step.delay || 0;
+    }, 50);
+  },
+
+  updateStep(updatedStep) {
+    if (!this.currentWorkflow || this.editingStepIndex === undefined) return;
+
+    this.currentWorkflow.steps[this.editingStepIndex] = updatedStep;
+    this.editingStepIndex = undefined;
+
+    this.renderSteps();
+    this.updateStepCount();
+    this.closeAddStepPanel();
+
+    // 恢复确认按钮文本
+    const confirmBtn = document.getElementById('confirm-add-step-btn');
+    if (confirmBtn) {
+      confirmBtn.textContent = '添加步骤';
+    }
+
+    log(`修改步骤：${updatedStep.desc}`, 'info');
   },
 
   moveStep(index, direction) {
@@ -404,6 +511,8 @@ const workflowModule = {
       log('请先创建或加载工作流', 'error');
       return;
     }
+    // 重置编辑状态
+    this.editingStepIndex = undefined;
     const panel = document.getElementById('add-step-panel');
     if (panel) {
       panel.classList.remove('hidden');
@@ -415,6 +524,13 @@ const workflowModule = {
     const panel = document.getElementById('add-step-panel');
     if (panel) {
       panel.classList.add('hidden');
+    }
+    // 重置编辑状态
+    this.editingStepIndex = undefined;
+    // 恢复确认按钮文本
+    const confirmBtn = document.getElementById('confirm-add-step-btn');
+    if (confirmBtn) {
+      confirmBtn.textContent = '添加步骤';
     }
   }
 };
@@ -573,7 +689,14 @@ function confirmAddStep() {
     return;
   }
 
-  workflowModule.addStep({ type, desc, params, delay });
+  const step = { type, desc, params, delay };
+
+  // 检查是否为编辑模式
+  if (workflowModule.editingStepIndex !== undefined) {
+    workflowModule.updateStep(step);
+  } else {
+    workflowModule.addStep(step);
+  }
 }
 
 async function runWorkflow(steps) {

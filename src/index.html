@@ -601,7 +601,7 @@
     </main>
 
     <!-- 日志面板 -->
-    <aside class="log-panel">
+    <aside class="log-panel" id="log-panel">
       <div class="log-header">
         <span>📋 日志</span>
         <button id="clear-log-btn" class="btn-icon">🗑️</button>
@@ -609,6 +609,9 @@
       <div id="log-content" class="log-content"></div>
     </aside>
   </div>
+
+  <!-- 日志切换按钮 -->
+  <button id="toggle-log-btn" class="toggle-log-btn" title="切换日志面板">📋</button>
 
   <!-- 添加步骤侧滑面板 -->
   <div id="add-step-panel" class="side-panel hidden">
@@ -640,7 +643,7 @@
       </div>
       <div class="side-panel-footer">
         <button id="cancel-add-step" class="btn btn-ghost">取消</button>
-        <button id="confirm-add-step" class="btn btn-primary">确认添加</button>
+        <button id="confirm-add-step-btn" class="btn btn-primary">添加步骤</button>
       </div>
     </div>
   </div>
