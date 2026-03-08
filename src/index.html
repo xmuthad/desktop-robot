@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>桌面机器人</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="logo">
+        <span class="logo-icon">🤖</span>
+        <span class="logo-text">桌面机器人</span>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-tab="commands">
+          <span class="icon">⌨️</span>
+          <span>指令</span>
+        </button>
+        <button class="nav-item" data-tab="workflow">
+          <span class="icon">⚡</span>
+          <span>工作流</span>
+        </button>
+        <button class="nav-item" data-tab="templates">
+          <span class="icon">📋</span>
+          <span>模板库</span>
+        </button>
+        <button class="nav-item" data-tab="advanced">
+          <span class="icon">🔧</span>
+          <span>高级</span>
+        </button>
+        <button class="nav-item" data-tab="scripts">
+          <span class="icon">📜</span>
+          <span>脚本</span>
+        </button>
+        <button class="nav-item" data-tab="recorder">
+          <span class="icon">🔴</span>
+          <span>录制</span>
+        </button>
+        <button class="nav-item" data-tab="scheduler">
+          <span class="icon">⏰</span>
+          <span>定时</span>
+        </button>
+        <button class="nav-item" data-tab="tools">
+          <span class="icon">🛠️</span>
+          <span>工具</span>
+        </button>
+        <button class="nav-item" data-tab="settings">
+          <span class="icon">⚙️</span>
+          <span>设置</span>
+        </button>
+      </nav>
+
+      <div class="status-bar">
+        <div class="status-item">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-text">就绪</span>
+        </div>
+        <div class="mouse-pos">
+          <span>鼠标：<span id="mouse-position">0, 0</span></span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <!-- 指令面板 -->
+      <section id="commands-panel" class="panel active">
+        <h2>快捷指令</h2>
+
+        <!-- 键盘宏面板 -->
+        <div class="command-group full-width">
+          <h3>⌨️ 键盘宏</h3>
+          <div class="macro-toolbar">
+            <button id="new-macro-btn" class="btn btn-primary">➕ 新建宏</button>
+            <button id="save-macro-btn" class="btn">💾 保存</button>
+          </div>
+          <div class="macro-container">
+            <div class="macro-list-panel">
+              <h4>我的宏</h4>
+              <ul id="macro-list" class="macro-list"></ul>
+            </div>
+            <div class="macro-editor-panel">
+              <div class="macro-header">
+                <input type="text" id="macro-name" class="text-input" placeholder="宏名称" style="flex:1;">
+                <select id="macro-hotkey" class="select-input">
+                  <option value="">无</option>
+                  <option value="F1">F1</option>
+                  <option value="F2">F2</option>
+                  <option value="F3">F3</option>
+                  <option value="F4">F4</option>
+                  <option value="F5">F5</option>
+                  <option value="F6">F6</option>
+                  <option value="F7">F7</option>
+                  <option value="F8">F8</option>
+                  <option value="F9">F9</option>
+                  <option value="F10">F10</option>
+                  <option value="F11">F11</option>
+                  <option value="F12">F12</option>
+                </select>
+              </div>
+              <div class="macro-commands" id="macro-commands">
+                <p class="empty-hint">暂无宏命令，点击"添加宏命令"开始</p>
+              </div>
+              <div class="macro-actions">
+                <button id="add-macro-cmd-btn" class="btn btn-secondary">➕ 添加宏命令</button>
+                <button id="run-macro-btn" class="btn btn-success">▶️ 运行</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="command-groups">
+          <div class="command-group">
+            <h3>🖱️ 鼠标操作</h3>
+            <div class="command-buttons">
+              <button class="cmd-btn" data-cmd="点击">点击</button>
+              <button class="cmd-btn" data-cmd="双击">双击</button>
+              <button class="cmd-btn" data-cmd="右键">右键</button>
+              <button class="cmd-btn" data-action="get-mouse-pos">获取位置</button>
+              <button class="cmd-btn" data-action="move-center">移到中心</button>
+            </div>
+          </div>
+
+          <div class="command-group">
+            <h3>⌨️ 键盘操作</h3>
+            <div class="command-buttons">
+              <button class="cmd-btn" data-cmd="按回车">回车</button>
+              <button class="cmd-btn" data-cmd="复制">复制</button>
+              <button class="cmd-btn" data-cmd="粘贴">粘贴</button>
+              <button class="cmd-btn" data-cmd="全选">全选</button>
+              <button class="cmd-btn" data-cmd="撤销">撤销</button>
+              <button class="cmd-btn" data-cmd="保存">保存</button>
+            </div>
+          </div>
+
+          <div class="command-group">
+            <h3>🌐 浏览器操作</h3>
+            <div class="command-buttons">
+              <button class="cmd-btn" data-cmd="新建标签">新标签</button>
+              <button class="cmd-btn" data-cmd="关闭标签">关闭</button>
+              <button class="cmd-btn" data-cmd="刷新">刷新</button>
+              <button class="cmd-btn" data-cmd="打开 chrome">Chrome</button>
+              <button class="cmd-btn" data-cmd="打开 safari">Safari</button>
+              <button class="cmd-btn" data-action="open-url">打开网址</button>
+            </div>
+          </div>
+
+          <div class="command-group">
+            <h3>🪟 窗口操作</h3>
+            <div class="command-buttons">
+              <button class="cmd-btn" data-cmd="关闭窗口">关闭</button>
+              <button class="cmd-btn" data-cmd="最小化">最小化</button>
+              <button class="cmd-btn" data-action="maximize-window">最大化</button>
+            </div>
+          </div>
+
+          <div class="command-group full-width">
+            <h3>💬 自定义指令</h3>
+            <div class="input-row">
+              <input type="text" id="custom-command" placeholder="输入指令，如：输入 Hello World" class="text-input">
+              <button id="execute-btn" class="btn-primary">执行</button>
+            </div>
+            <div class="quick-commands">
+              <span class="quick-label">快速指令：</span>
+              <button class="quick-btn" data-text="输入你好">输入文本</button>
+              <button class="quick-btn" data-text="访问 https://github.com">打开 GitHub</button>
+              <button class="quick-btn" data-text="截图">截图</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 工作流面板 -->
+      <section id="workflow-panel" class="panel">
+        <div class="workflow-panel-header">
+          <h2>🤖 工作流自动化</h2>
+          <p class="panel-desc">创建自动化工作流，一键执行重复性任务</p>
+        </div>
+
+        <div class="workflow-container">
+          <!-- 左侧：工作流列表 -->
+          <div class="workflow-list-panel">
+            <div class="panel-section-header">
+              <h3>我的工作流</h3>
+              <button id="new-workflow-btn" class="btn btn-sm btn-primary">➕ 新建</button>
+            </div>
+            <ul id="workflow-list" class="workflow-list">
+              <li class="workflow-list-empty">暂无工作流，点击"新建"开始</li>
+            </ul>
+            <div class="workflow-list-actions-bar">
+              <button id="import-workflow-btn" class="btn btn-sm btn-ghost">📂 导入</button>
+              <button id="export-workflow-btn" class="btn btn-sm btn-ghost">💾 导出</button>
+            </div>
+          </div>
+
+          <!-- 右侧：编辑器 -->
+          <div class="workflow-editor-panel">
+            <!-- 空状态 -->
+            <div id="workflow-empty-state" class="workflow-empty-state">
+              <div class="empty-state-icon">📝</div>
+              <h3>暂无工作流</h3>
+              <p>点击下方按钮创建你的第一个工作流</p>
+            </div>
+
+            <!-- 编辑区域 -->
+            <div id="workflow-editor-area" class="workflow-editor-area hidden">
+              <div class="workflow-header">
+                <input type="text" id="workflow-name" class="text-input workflow-title-input" placeholder="工作流名称">
+                <div class="workflow-meta">
+                  <label class="hotkey-label">
+                    <span>快捷键：</span>
+                    <select id="workflow-hotkey" class="select-input">
+                      <option value="">无</option>
+                      <option value="F1">F1</option>
+                      <option value="F2">F2</option>
+                      <option value="F3">F3</option>
+                      <option value="F4">F4</option>
+                      <option value="F5">F5</option>
+                      <option value="F6">F6</option>
+                      <option value="F7">F7</option>
+                      <option value="F8">F8</option>
+                      <option value="F9">F9</option>
+                      <option value="F10">F10</option>
+                      <option value="F11">F11</option>
+                      <option value="F12">F12</option>
+                    </select>
+                  </label>
+                  <span id="workflow-step-count" class="step-count-badge">0 个步骤</span>
+                </div>
+              </div>
+
+              <!-- 步骤列表 -->
+              <div class="workflow-steps-container">
+                <div class="steps-header">
+                  <h4>步骤流程</h4>
+                  <button id="add-step-btn" class="btn btn-sm btn-primary">➕ 添加步骤</button>
+                </div>
+                <div id="workflow-steps" class="workflow-steps">
+                  <p class="empty-hint">暂无步骤，点击"添加步骤"开始</p>
+                </div>
+              </div>
+
+              <!-- 底部操作栏 -->
+              <div class="workflow-footer-actions">
+                <div class="workflow-status" id="workflow-status"></div>
+                <div class="workflow-control-buttons">
+                  <button id="run-workflow-btn" class="btn btn-success">▶️ 运行</button>
+                  <button id="stop-workflow-btn" class="btn btn-danger" disabled>⏹️ 停止</button>
+                  <button id="save-workflow-btn" class="btn btn-primary">💾 保存</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <input type="file" id="workflow-file-input" accept=".json" style="display: none;">
+      </section>
+
+      <!-- 模板库面板 -->
+      <section id="templates-panel" class="panel">
+        <h2>模板库</h2>
+
+        <div class="templates-container">
+          <div class="templates-sidebar">
+            <h3>模板分类</h3>
+            <ul class="template-categories">
+              <li class="category-item active" data-category="all">全部</li>
+              <li class="category-item" data-category="browser">浏览器</li>
+              <li class="category-item" data-category="office">办公</li>
+              <li class="category-item" data-category="social">社交</li>
+              <li class="category-item" data-category="system">系统</li>
+              <li class="category-item" data-category="custom">自定义</li>
+            </ul>
+          </div>
+
+          <div class="templates-content">
+            <div class="templates-grid" id="templates-grid"></div>
+          </div>
+        </div>
+
+        <!-- 模板详情模态框 -->
+        <div id="template-detail-modal" class="modal hidden">
+          <div class="modal-content modal-large">
+            <h3 id="template-detail-title">模板详情</h3>
+            <div class="modal-body">
+              <div class="template-info">
+                <p id="template-detail-desc"></p>
+                <h4>步骤预览：</h4>
+                <ul id="template-detail-steps" class="template-steps-preview"></ul>
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button id="cancel-template-btn" class="btn">取消</button>
+              <button id="use-template-btn" class="btn btn-primary">使用此模板</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 高级功能面板 -->
+      <section id="advanced-panel" class="panel">
+        <h2>高级功能</h2>
+
+        <div class="command-groups">
+          <div class="command-group full-width">
+            <h3>📋 剪贴板管理</h3>
+            <div class="command-buttons">
+              <button class="cmd-btn" id="clipboard-get-btn">获取内容</button>
+              <button class="cmd-btn" id="clipboard-clear-btn">清空剪贴板</button>
+            </div>
+            <div class="clipboard-display">
+              <textarea id="clipboard-content" placeholder="剪贴板内容将显示在这里..." readonly></textarea>
+            </div>
+          </div>
+
+          <div class="command-group">
+            <h3>🖼️ 屏幕截图</h3>
+            <div class="command-buttons">
+              <button class="cmd-btn" id="capture-screen-btn">截取屏幕</button>
+            </div>
+            <div class="screenshot-preview" id="screenshot-preview">
+              <span class="empty-hint">截图将显示在这里</span>
+            </div>
+          </div>
+
+          <div class="command-group">
+            <h3>🎯 精准定位</h3>
+            <div class="coordinate-inputs">
+              <div class="input-group">
+                <label>X 坐标</label>
+                <input type="number" id="coord-x" value="0">
+              </div>
+              <div class="input-group">
+                <label>Y 坐标</label>
+                <input type="number" id="coord-y" value="0">
+              </div>
+              <button class="btn-primary" id="move-to-coord-btn">移动到</button>
+              <button class="btn" id="click-at-coord-btn">点击</button>
+            </div>
+          </div>
+
+          <div class="command-group">
+            <h3>🎨 颜色检测</h3>
+            <div class="color-detector">
+              <div class="color-preview" id="color-preview"></div>
+              <div class="color-info">
+                <div class="color-rgb" id="color-rgb">RGB: --</div>
+                <div class="color-hex" id="color-hex">HEX: --</div>
+              </div>
+              <button class="btn-primary" id="detect-color-btn">检测鼠标位置颜色</button>
+            </div>
+          </div>
+
+          <div class="command-group full-width">
+            <h3>🖱️ 连点器</h3>
+            <div class="autoclicker-settings">
+              <div class="input-group">
+                <label>点击间隔 (毫秒)</label>
+                <input type="number" id="autoclicker-interval" value="100" min="50">
+              </div>
+              <div class="input-group">
+                <label>点击次数 (0=无限)</label>
+                <input type="number" id="autoclicker-count" value="0" min="0">
+              </div>
+              <button class="btn-primary" id="start-autoclicker-btn">开始</button>
+              <button class="btn btn-danger" id="stop-autoclicker-btn" disabled>停止</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 脚下面板 -->
+      <section id="scripts-panel" class="panel">
+        <h2>脚本管理</h2>
+
+        <div class="scripts-toolbar">
+          <button id="new-script-btn" class="btn">➕ 新建脚本</button>
+          <button id="import-script-btn" class="btn">📂 导入脚本</button>
+          <button id="export-script-btn" class="btn">💾 导出脚本</button>
+          <input type="file" id="script-file-input" accept=".json" style="display: none;">
+        </div>
+
+        <div class="scripts-container">
+          <div class="scripts-list-panel">
+            <h3>已保存的脚本</h3>
+            <ul id="scripts-list" class="scripts-list"></ul>
+          </div>
+
+          <div class="script-editor-panel">
+            <h3>
+              <input type="text" id="script-name" class="script-name-input" placeholder="脚本名称">
+            </h3>
+            <div class="script-commands" id="script-commands">
+              <p class="empty-hint">暂无命令，点击"添加命令"开始</p>
+            </div>
+            <div class="script-editor-actions">
+              <button id="add-command-btn" class="btn btn-secondary">➕ 添加命令</button>
+              <button id="run-script-btn" class="btn btn-primary">▶️ 运行脚本</button>
+              <button id="stop-script-btn" class="btn btn-danger" disabled>⏹️ 停止</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 录制面板 -->
+      <section id="recorder-panel" class="panel">
+        <h2>录制脚本</h2>
+
+        <div class="recorder-container">
+          <div class="recorder-status" id="recorder-status">
+            <div class="recording-indicator"></div>
+            <span class="status-text">未录制</span>
+          </div>
+
+          <div class="recorder-actions">
+            <button id="start-record-btn" class="btn btn-danger btn-large">🔴 开始录制</button>
+            <button id="stop-record-btn" class="btn btn-secondary btn-large" disabled>⏹️ 停止录制</button>
+          </div>
+
+          <div class="recorded-commands">
+            <h3>录制的命令</h3>
+            <ul id="recorded-list" class="recorded-list"></ul>
+          </div>
+
+          <div class="recorder-save">
+            <input type="text" id="record-name" placeholder="脚本名称" class="text-input">
+            <button id="save-record-btn" class="btn btn-primary" disabled>💾 保存脚本</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 定时任务面板 -->
+      <section id="scheduler-panel" class="panel">
+        <h2>定时任务</h2>
+
+        <div class="scheduler-container">
+          <div class="scheduler-form">
+            <h3>创建定时任务</h3>
+            <div class="form-row">
+              <label>任务名称</label>
+              <input type="text" id="task-name" class="text-input" placeholder="输入任务名称">
+            </div>
+            <div class="form-row">
+              <label>选择脚本</label>
+              <select id="task-script-select" class="select-input"></select>
+            </div>
+            <div class="form-row">
+              <label>执行时间</label>
+              <input type="time" id="task-time" class="text-input">
+            </div>
+            <div class="form-row">
+              <label>重复</label>
+              <div class="checkbox-group">
+                <label><input type="checkbox" id="repeat-daily"> 每天</label>
+                <label><input type="checkbox" id="repeat-weekdays"> 工作日</label>
+                <label><input type="checkbox" id="repeat-weekend"> 周末</label>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>启用</label>
+              <input type="checkbox" id="task-enabled" checked>
+            </div>
+            <button id="add-task-btn" class="btn btn-primary">添加任务</button>
+          </div>
+
+          <div class="tasks-list-panel">
+            <h3>已创建的任务</h3>
+            <ul id="tasks-list" class="tasks-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 设置面板 -->
+      <section id="settings-panel" class="panel">
+        <h2>设置</h2>
+
+        <div class="settings-group">
+          <h3>通用设置</h3>
+          <div class="setting-item">
+            <label for="mouse-speed">鼠标移动速度</label>
+            <input type="range" id="mouse-speed" min="1" max="100" value="50">
+            <span id="mouse-speed-value">50</span>
+          </div>
+
+          <div class="setting-item">
+            <label for="default-delay">默认延迟 (秒)</label>
+            <input type="number" id="default-delay" min="0" max="10" step="0.1" value="0.5">
+          </div>
+
+          <div class="setting-item">
+            <label for="confirm-execution">执行前确认</label>
+            <input type="checkbox" id="confirm-execution">
+          </div>
+
+          <div class="setting-item">
+            <label for="log-max-lines">日志最大行数</label>
+            <input type="number" id="log-max-lines" min="50" max="1000" value="200">
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h3>快捷键设置</h3>
+          <div class="setting-item">
+            <label>启动/停止脚本</label>
+            <kbd>F6</kbd>
+          </div>
+          <div class="setting-item">
+            <label>快速录制</label>
+            <kbd>F7</kbd>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h3>关于</h3>
+          <p class="about-text">
+            桌面机器人 v1.0.0<br>
+            一个基于 Node.js 和 Electron 的桌面自动化工具<br>
+            <br>
+            支持 macOS / Windows / Linux
+          </p>
+        </div>
+
+        <div class="settings-group">
+          <h3>数据管理</h3>
+          <div class="command-buttons">
+            <button class="btn" id="export-data-btn">导出数据</button>
+            <button class="btn" id="import-data-btn">导入数据</button>
+            <button class="btn btn-danger" id="clear-data-btn">清空数据</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 系统工具面板 -->
+      <section id="tools-panel" class="panel">
+        <h2>🛠️ 系统工具</h2>
+
+        <div class="tools-grid">
+          <!-- 系统信息 -->
+          <div class="tool-card">
+            <h3>💻 系统信息</h3>
+            <div id="system-info" class="info-list">
+              <button class="btn btn-primary" onclick="loadSystemInfo()" style="width:100%">获取系统信息</button>
+            </div>
+          </div>
+
+          <!-- 进程管理 -->
+          <div class="tool-card">
+            <h3>📋 进程管理</h3>
+            <div class="tool-actions">
+              <button class="btn" onclick="loadProcessList()">刷新进程</button>
+            </div>
+            <div id="process-list" class="process-list"></div>
+          </div>
+
+          <!-- 网络信息 -->
+          <div class="tool-card">
+            <h3>🌐 网络信息</h3>
+            <div id="network-info" class="info-list">
+              <button class="btn btn-primary" onclick="loadNetworkInfo()" style="width:100%">获取网络信息</button>
+            </div>
+          </div>
+
+          <!-- 音量控制 -->
+          <div class="tool-card">
+            <h3>🔊 音量控制</h3>
+            <div class="volume-control">
+              <input type="range" id="volume-slider" min="0" max="100" value="50" style="width:100%">
+              <div class="volume-actions">
+                <button class="btn" onclick="toggleMute()">静音切换</button>
+                <button class="btn" onclick="loadVolume()">刷新</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 文件操作 -->
+          <div class="tool-card">
+            <h3>📁 文件操作</h3>
+            <div class="file-actions">
+              <input type="text" id="file-path-input" class="text-input" placeholder="文件路径" style="width:100%; margin-bottom: 8px;">
+              <button class="btn" onclick="readDirectory()">读取目录</button>
+              <button class="btn" onclick="getFileSize()">获取文件大小</button>
+            </div>
+            <div id="file-list" class="file-list"></div>
+          </div>
+
+          <!-- Shell 命令 -->
+          <div class="tool-card full-width">
+            <h3>💻 Shell 命令</h3>
+            <div class="shell-command">
+              <input type="text" id="shell-command-input" class="text-input" placeholder="输入 Shell 命令" style="flex:1;">
+              <button class="btn btn-primary" onclick="execShellCommand()">执行</button>
+            </div>
+            <pre id="shell-output" class="shell-output"></pre>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- 日志面板 -->
+    <aside class="log-panel">
+      <div class="log-header">
+        <span>📋 日志</span>
+        <button id="clear-log-btn" class="btn-icon">🗑️</button>
+      </div>
+      <div id="log-content" class="log-content"></div>
+    </aside>
+  </div>
+
+  <!-- 添加步骤侧滑面板 -->
+  <div id="add-step-panel" class="side-panel hidden">
+    <div class="side-panel-content">
+      <div class="side-panel-header">
+        <h3>➕ 添加步骤</h3>
+        <button id="close-add-step" class="btn-icon">✕</button>
+      </div>
+      <div class="side-panel-body">
+        <label>步骤类型</label>
+        <select id="step-type" class="select-input">
+          <option value="open-app">🚀 打开应用</option>
+          <option value="open-url">🌐 打开网址</option>
+          <option value="type-text">⌨️ 输入文本</option>
+          <option value="send-hotkey">🎹 发送快捷键</option>
+          <option value="mouse-click">🖱️ 鼠标点击</option>
+          <option value="mouse-move">🖱️ 移动鼠标</option>
+          <option value="wait">⏱️ 等待</option>
+          <option value="run-script">📜 运行脚本</option>
+          <option value="custom">💬 自定义指令</option>
+        </select>
+
+        <div id="step-params-container" class="step-params-container"></div>
+
+        <div class="delay-input-group">
+          <label>执行后等待 (秒)</label>
+          <input type="number" id="step-delay" min="0" max="10" step="0.1" value="0.5">
+        </div>
+      </div>
+      <div class="side-panel-footer">
+        <button id="cancel-add-step" class="btn btn-ghost">取消</button>
+        <button id="confirm-add-step" class="btn btn-primary">确认添加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加命令模态框 -->
+  <div id="add-command-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>添加命令</h3>
+      <div class="modal-body">
+        <label>指令类型</label>
+        <select id="command-type" class="select-input">
+          <option value="custom">自定义指令</option>
+          <option value="click">点击</option>
+          <option value="double-click">双击</option>
+          <option value="right-click">右键</option>
+          <option value="enter">回车</option>
+          <option value="type">输入文本</option>
+          <option value="copy">复制</option>
+          <option value="paste">粘贴</option>
+          <option value="save">保存</option>
+          <option value="undo">撤销</option>
+          <option value="new-tab">新建标签</option>
+          <option value="close-tab">关闭标签</option>
+          <option value="refresh">刷新</option>
+          <option value="open-chrome">打开 Chrome</option>
+          <option value="open-safari">打开 Safari</option>
+          <option value="open-url">打开网址</option>
+          <option value="screenshot">截图</option>
+        </select>
+
+        <div id="command-value-container" class="hidden">
+          <label id="command-value-label">值</label>
+          <input type="text" id="command-value" class="text-input" placeholder="输入值">
+        </div>
+
+        <div class="delay-input">
+          <label>延迟 (秒)</label>
+          <input type="number" id="command-delay" min="0" max="10" step="0.1" value="0.5">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="cancel-add-cmd" class="btn">取消</button>
+        <button id="confirm-add-cmd" class="btn btn-primary">添加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 打开网址模态框 -->
+  <div id="open-url-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>打开网址</h3>
+      <div class="modal-body">
+        <input type="text" id="url-input" class="text-input" placeholder="输入网址，如：https://github.com">
+      </div>
+      <div class="modal-actions">
+        <button id="cancel-url-btn" class="btn">取消</button>
+        <button id="confirm-url-btn" class="btn btn-primary">打开</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加宏命令模态框 -->
+  <div id="add-macro-cmd-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>添加宏命令</h3>
+      <div class="modal-body">
+        <label>按键/快捷键</label>
+        <input type="text" id="macro-key-input" class="text-input" placeholder="如：Ctrl+Alt+K 或 F1">
+        <p style="font-size:12px;color:var(--text-secondary);margin-top:8px;">支持格式：单键 (A-Z)、组合键 (Ctrl+Shift+X、Cmd+Alt+K)</p>
+        <label style="margin-top:12px;">执行动作</label>
+        <select id="macro-action-type" class="select-input">
+          <option value="hotkey">发送快捷键</option>
+          <option value="type">输入文本</option>
+          <option value="custom">自定义指令</option>
+        </select>
+        <div id="macro-action-value-container" class="hidden" style="margin-top:12px;">
+          <input type="text" id="macro-action-value" class="text-input" placeholder="输入值">
+        </div>
+        <label style="margin-top:12px;">延迟 (秒)</label>
+        <input type="number" id="macro-cmd-delay" class="text-input" value="0.1" min="0" step="0.1" style="width:100px;">
+      </div>
+      <div class="modal-actions">
+        <button id="cancel-add-macro-cmd" class="btn">取消</button>
+        <button id="confirm-add-macro-cmd" class="btn btn-primary">添加</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+  <script src="workflow.js"></script>
+  <script src="templates.js"></script>
+  <script src="ai-assistant.js"></script>
+
+  <!-- 增强设置面板（动态注入） -->
+  <script>
+    // 主题设置初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      // 主题切换
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          if (typeof ThemeManager !== 'undefined' && ThemeManager.apply) {
+            ThemeManager.apply(btn.dataset.theme);
+          }
+        });
+      });
+
+      document.getElementById('theme-toggle-btn')?.addEventListener('click', () => {
+        if (typeof ThemeManager !== 'undefined' && ThemeManager.toggle) {
+          ThemeManager.toggle();
+        }
+      });
+
+      // 语言切换
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          if (typeof i18n !== 'undefined' && i18n.setLang) {
+            i18n.setLang(btn.dataset.lang);
+          }
+        });
+      });
+
+      // 自动保存切换
+      document.getElementById('toggle-autosave-btn')?.addEventListener('click', () => {
+        if (typeof AutoSave !== 'undefined' && AutoSave.toggle) {
+          const enabled = AutoSave.toggle();
+          const statusEl = document.querySelector('.auto-save-status span:last-child');
+          if (statusEl) {
+            statusEl.textContent = enabled ? '自动保存已启用（30 秒间隔）' : '自动保存已禁用';
+          }
+        }
+      });
+
+      // 性能统计
+      const perfBtn = document.getElementById('show-perf-btn');
+      if (perfBtn && typeof PerformanceMonitor !== 'undefined' && PerformanceMonitor.showStats) {
+        perfBtn.addEventListener('click', () => {
+          PerformanceMonitor.showStats();
+        });
+      }
+
+      // 数据备份
+      document.getElementById('export-all-data-btn')?.addEventListener('click', () => {
+        if (typeof DataExporter !== 'undefined' && DataExporter.exportAll) {
+          DataExporter.exportAll();
+        }
+      });
+
+      document.getElementById('import-all-data-btn')?.addEventListener('click', () => {
+        document.getElementById('import-data-file-input')?.click();
+      });
+
+      document.getElementById('import-data-file-input')?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file && typeof DataExporter !== 'undefined' && DataExporter.importAll) {
+          DataExporter.importAll(file);
+        }
+        e.target.value = '';
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+{
+  "name": "desktop-robot",
+  "version": "1.4.0",
+  "description": "桌面自动化机器人 - 图形界面版本",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "test": "node test.js",
+    "test:unit": "node test/unit.test.js",
+    "test:mock": "node test/mock.test.js",
+    "test:html": "node test/html-structure.test.js",
+    "test:all": "npm test && npm run test:unit && npm run test:mock && npm run test:html"
+  },
+  "keywords": [
+    "desktop",
+    "robot",
+    "automation",
+    "electron"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "electron-rebuild": "^3.2.9"
+  },
+  "dependencies": {
+    "robotjs": "^0.6.0",
+    "iconv-lite": "^0.6.3"
+  },
+  "build": {
+    "appId": "com.desktop.robot",
+    "productName": "Desktop Robot",
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}
